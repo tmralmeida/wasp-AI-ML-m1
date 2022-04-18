@@ -67,7 +67,7 @@ The user can keep track on the changes on the environment by looking at the logs
 
 
 
-<img src="docs/example_gs11.png" align="right" width="400" height="400"/>
+<img src="docs/example_gs11.png" align="right" width="500" height="500"/>
 
 Initial `state` representation:
 
