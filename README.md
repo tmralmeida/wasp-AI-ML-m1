@@ -61,15 +61,15 @@ After launching the simulator, the user should use the buttons of his mouse:
 * reward of hitting against an obstacle: -10
 * reward of moving in any direction: -1
 * reward of vacuuming one cell with dirty: +1
-* the state keeps track of the rewards in each cell, where `0` means the robot's location
+* the `model` keeps track of the rewards in each cell, where `0` means the robot's location
 
-The user can keep track on the changes on the environment by looking at the logs in the terminal. For instance, an 11-Grid world environment and the respective `state` should look like this: 
+The user can keep track on the changes on the environment by looking at the logs in the terminal. For instance, an 11-Grid world environment and the respective `model` should look like this: 
 
 
 
 <img src="docs/example_gs11.png" align="right" width="500" height="500"/>
 
-Initial `state` representation:
+Initial `model` representation:
 
 
 ```
@@ -87,7 +87,7 @@ Initial `state` representation:
 ```
 
 
-Final `state` representation:
+Final `model` representation:
 
 ```
 [[ 0, 1,-1, -1, -1, -1,-1,-1,-1,-1,-1]

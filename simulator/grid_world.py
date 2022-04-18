@@ -24,33 +24,33 @@ class GridWorld():
     
     def __init_vars(self):
         self.clicks_robot, self.clicks_obstacles, self.clicks_dirty = 0, 0, 0
-        self.state = np.ones((self.nc, self.nc)) * FREE_VALUE 
-        print("\nInitial state:\n", self.state)
+        self.model = np.ones((self.nc, self.nc)) * FREE_VALUE 
+        print("\nInitial state:\n", self.model)
 
 
     def __update_cell(self, x : int, y : int, type : str):
         if type == "robot":
-            self.state[y, x] = ROBOT_VALUE if self.state[y, x] == FREE_VALUE else FREE_VALUE 
+            self.model[y, x] = ROBOT_VALUE if self.model[y, x] == FREE_VALUE else FREE_VALUE 
         elif type == "obs": # obstacle
-            self.state[y, x] = OBSTACLE_VALUE if self.state[y, x] == FREE_VALUE else FREE_VALUE
+            self.model[y, x] = OBSTACLE_VALUE if self.model[y, x] == FREE_VALUE else FREE_VALUE
         elif type == "dirty":
-            self.state[y, x] = DIRTY_VALUE if self.state[y, x] == FREE_VALUE  else FREE_VALUE 
+            self.model[y, x] = DIRTY_VALUE if self.model[y, x] == FREE_VALUE  else FREE_VALUE 
 
             
     def __occ_robot(self, x : int, y : int):
-        return self.state[y, x] == ROBOT_VALUE
+        return self.model[y, x] == ROBOT_VALUE
     
 
     def __occ_obstacle(self, x : int, y : int):
-        return self.state[y, x] == OBSTACLE_VALUE
+        return self.model[y, x] == OBSTACLE_VALUE
 
     
     def __occ_dirty(self, x : int, y : int):
-        return self.state[y, x] == DIRTY_VALUE
+        return self.model[y, x] == DIRTY_VALUE
 
 
     def __free_cell(self, x : int, y : int):
-        return not self.state[y, x] == ROBOT_VALUE and not self.state[y, x] == OBSTACLE_VALUE and not self.state[y, x] == DIRTY_VALUE
+        return not self.model[y, x] == ROBOT_VALUE and not self.model[y, x] == OBSTACLE_VALUE and not self.model[y, x] == DIRTY_VALUE
 
 
     def coord_robot(self, event):
@@ -67,7 +67,7 @@ class GridWorld():
             # updating cell in the state 
             self.__update_cell(coord_x, coord_y, "robot")
             print("Placing robot at", (coord_y, coord_x))
-            print("New state\n", self.state)
+            print("New model\n", self.model)
             
         else:
             # if it is occupied by the robot -> remove the robot
@@ -76,7 +76,7 @@ class GridWorld():
                 self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#fff", fill="#fff") # re-painting white
                 print("Removing robot from", (coord_y, coord_x))
                 self.__update_cell(coord_x, coord_y, "robot")
-                print("New state\n", self.state)
+                print("New model\n", self.model)
             else:
                 print("Not occupied by the robot!")
            
@@ -95,7 +95,7 @@ class GridWorld():
             # updating cell in the state 
             self.__update_cell(coord_x, coord_y, "obs")
             print(f"Placing obstacles at", (coord_y, coord_x))
-            print("New state\n", self.state)
+            print("New model\n", self.model)
         
         else:
             if self.__occ_obstacle(coord_x, coord_y): # occupied by an obstacle
@@ -103,14 +103,14 @@ class GridWorld():
                 self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#fff", fill="#fff") # re-painting white
                 print("Removing obstacle from", (coord_y, coord_x))
                 self.__update_cell(coord_x, coord_y, "obs")
-                print("New state\n", self.state)
+                print("New model\n", self.model)
             
             elif self.__occ_dirty(coord_x, coord_y): # occupied by dirty
                 self.clicks_dirty -= 1
                 self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#fff", fill="#fff") # re-painting white
                 print("Removing dirty from", (coord_y, coord_x))
                 self.__update_cell(coord_x, coord_y, "dirty")
-                print("New state\n", self.state)
+                print("New model\n", self.model)
             
             elif self.__occ_robot(coord_x, coord_y): # occupied by the robot
                 print("Not occupied by obstacles or dirty. To remove the robot please use left button of your mouse!")
@@ -120,7 +120,7 @@ class GridWorld():
                 self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#00ff7f", fill="#00ff7f") # re-painting white
                 self.__update_cell(coord_x, coord_y, "dirty")
                 print(f"Placing dirty at", (coord_y, coord_x))
-                print("New state\n", self.state)
+                print("New model\n", self.model)
             
             else:
                 raise Exception("Designer needs to double check button right")
