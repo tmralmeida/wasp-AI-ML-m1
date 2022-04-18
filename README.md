@@ -67,7 +67,7 @@ The user can keep track on the changes on the environment by looking at the logs
 
 
 
-<img src="docs/example_gs11.png" align="right" width="100" height="100"/>
+<img src="docs/example_gs11.png" align="right" width="300" height="300"/>
 
 ```
 [[ 0, 1,-1, -1, -1, -1,-1,-1,-1,-1,-1]
