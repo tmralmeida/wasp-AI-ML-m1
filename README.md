@@ -15,6 +15,7 @@ conda create --name <env_name> --file requirements.yml
   * [x] agent in the environment
   * [x] obstacles in the environment
   * [x] dirty in the environment 
+  * [ ] .step() render
 * [ ] Smart agent 
 
 ## Instructions

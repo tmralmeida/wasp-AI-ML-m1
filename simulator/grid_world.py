@@ -126,9 +126,14 @@ class GridWorld():
                 raise Exception("Designer needs to double check button right")
                 
         
-            
-            
-        
+
+    def play_sim(self, event):
+        if self.clicks_obstacles == self.no and self.clicks_robot == self.nr:
+            print("Training agent...")
+        else:
+            print("Please, finish the environment designing!")
+    
+
 
     def get_world(self):
         self.canvas = Canvas(self.root,height = self.side,width = self.side,bd=0,bg="#fff")
@@ -145,9 +150,10 @@ class GridWorld():
             for y in range(self.nc + 1):
                 # horizontal line
                 self.canvas.create_line(0,100*y,self.side, 100*y,width=5)
-            
+        self.canvas.focus_set() 
         self.canvas.bind("<Button-1>", self.coord_robot)
         self.canvas.bind("<Button-3>", self.coords_obs_dirt)
+        self.canvas.bind("<p>", self.play_sim)
         print("\nPlease place the robot with the left button of your mouse.")
 
         
