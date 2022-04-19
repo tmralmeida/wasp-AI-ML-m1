@@ -127,7 +127,7 @@ class GridWorld():
                 
         
 
-    def play_sim(self, event):
+    def play_train(self, event):
         if self.clicks_obstacles == self.no and self.clicks_robot == self.nr:
             print("Training agent...")
         else:
@@ -153,7 +153,7 @@ class GridWorld():
         self.canvas.focus_set() 
         self.canvas.bind("<Button-1>", self.coord_robot)
         self.canvas.bind("<Button-3>", self.coords_obs_dirt)
-        self.canvas.bind("<p>", self.play_sim)
+        self.canvas.bind("<p>", self.play_train)
         print("\nPlease place the robot with the left button of your mouse.")
 
         
