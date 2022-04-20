@@ -56,8 +56,9 @@ After launching the simulator, the user should use the buttons of his mouse:
 
 * there is only one robot
 * there is a maximum amount of obstacles =  `num_cells`
-* there is no limit for the amount of "dirty"
-* button right: the user should first place the obstacles and then the dirty
+* there is no maximum limit on the amount of "dirty" but there is minimum (equal to the number of obstacles)
+* button left: the user should first place the robot
+* button right: then the user must place the obstacles and then the dirty
 * nevertheless, the user can remove any object by simply clicking again on the respective occupied cell with the respective button
 * reward of hitting against an obstacle: -10
 * reward of moving in any direction: -1

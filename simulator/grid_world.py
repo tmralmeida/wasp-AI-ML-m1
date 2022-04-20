@@ -128,7 +128,7 @@ class GridWorld():
         
 
     def play_sim(self, event):
-        if self.clicks_obstacles == self.no and self.clicks_robot == self.nr:
+        if self.clicks_obstacles == self.no and self.clicks_robot == self.nr and self.clicks_dirty >= self.clicks_obstacles:
             print("Playing simulation...")
         else:
             print("Please, finish the environment designing!")
