@@ -1,0 +1,11 @@
+epochs : 1200
+steps_per_epoch : 4000 # Max number of (s,a) per epoch
+gamma : 0.99 # Discount factor
+lambda : 0.97 # Hyperparameter for the baseline
+
+pi_lr : 3e-4 # Learning rate for the training of the policy net
+v_lr : 1e-3 # Learning rate for the training of the value function net
+v_train_iters : 80 # Number of iterations to run the value function optimizer in each epoch
+max_ep_len : 1000 # Max len of a trajectory / episode / rollout
+
+hidden_sizes : [32,32] # Shape of each FC hidden layer
