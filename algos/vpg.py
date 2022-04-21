@@ -35,11 +35,11 @@ Experience = namedtuple("Experience", (
 ))
 
 
-def mlp(sizes, activation = nn.Sigmoid, last_activation = nn.Identity):
+def mlp(sizes, activation = nn.Tanh, last_activation = nn.Identity):
     """ Function that returns a multi layer perceptron pytorch object. It's the policy network
     Args:
         sizes (iterator): hidden sizes 
-        activation (class 'torch.nn.modules.activation): activation of the hidden layers. Defaults to nn.Sigmoid.
+        activation (class 'torch.nn.modules.activation): activation of the hidden layers. Defaults to nn.Tanh.
         last_activation (class 'torch.nn.modules.activation): [activation of the last layer]. Defaults to nn.Identity.
     """
     s = list(zip(sizes[::1], sizes[1::])) # pairs together the respectiive sizes of each FC layer
@@ -134,7 +134,7 @@ class MLPCategoricalPolicy(nn.Module):
         log_prob_from_dist(pi, act): computes the log likelihood of an observation in a certain policy dist
         forward(obs, optional act): handles the full process: get a dist and computes the log likelihood 
     """
-    def __init__(self, sizes, activation = nn.Sigmoid, last_activation = nn.Identity, device = torch.device("cpu")):
+    def __init__(self, sizes, activation = nn.Tanh, last_activation = nn.Identity, device = torch.device("cpu")):
         super().__init__()
         self.policy_net = mlp(sizes, activation, last_activation).to(device)
         
@@ -164,7 +164,7 @@ class MLPGaussianPolicy():
         dist(obs): returns a normal distribution based on the observation
         log_prob_from_dist(pi, act): returns the logits of an action of a certain policy
     """
-    def __init__(self, sizes, act_dim, activation = nn.Sigmoid, last_activation = nn.Identity, device = torch.device("cpu")):
+    def __init__(self, sizes, act_dim, activation = nn.Tanh, last_activation = nn.Identity, device = torch.device("cpu")):
         self.mu_net = mlp(sizes, activation, last_activation).to(device)
         log_std = -0.5 *np.ones(act_dim, dtype = np.float32)
         self.log_std = nn.Parameter(torch.as_tensor(log_std))
@@ -179,7 +179,7 @@ class MLPGaussianPolicy():
 class PolicyValue(nn.Module):
     """ Highlevel handler of the Policy and Value functions. Although several res define REINFORCE as an AC, I don't agree
     """
-    def __init__(self, observation_space, action_space, hidden_sizes, activation = nn.Sigmoid, last_activation = nn.Identity, device = torch.device("cpu")):
+    def __init__(self, observation_space, action_space, hidden_sizes, activation = nn.Tanh, last_activation = nn.Identity, device = torch.device("cpu")):
         super().__init__()
         
         

@@ -74,9 +74,9 @@ class EnvGenerator():
         elif action == 1:
             offset_x, offset_y = 1, 0
         elif action == 2:
-            offset_x, offset_y = 0, 1
-        elif action == 3:
             offset_x, offset_y = 0, -1
+        elif action == 3:
+            offset_x, offset_y = 0, 1
         return offset_x, offset_y
     
     
@@ -109,10 +109,10 @@ class EnvGenerator():
             self.env[self.robot_loc[0] + ox, self.robot_loc[1] + oy, 2] = 0
         if robot_moved:
             # update robot loc
+            self.env[self.robot_loc[0], self.robot_loc[1], 1] = 0 # robot is not here anymore
             self.robot_loc[0] += ox
             self.robot_loc[1] += oy
-            self.env[self.robot_loc[0], self.robot_loc[1], 1] = 0
-            self.env[self.robot_loc[0] + ox, self.robot_loc[1] + oy, 1] = 1
+            self.env[self.robot_loc[0], self.robot_loc[1], 1] = 1 # place robot
         
         return reward 
     

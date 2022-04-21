@@ -11,8 +11,6 @@ from utils.common import *
 
 
 
-
-
 parser = ArgumentParser(description = "Vacuum cleaning smart agent")
 
 parser.add_argument(
