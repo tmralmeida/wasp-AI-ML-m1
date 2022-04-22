@@ -103,8 +103,8 @@ for env in range(args.num_envs):
                 if terminal:
                     epoch_returns.append(ep_ret)
                     all_durations.append(st)
-                    eg.get_env()
-                    obs = eg.get_state()
+                    eg.create_env()
+                    obs = eg.get_obs()
     
         # Update VPG
         data = memory.get()

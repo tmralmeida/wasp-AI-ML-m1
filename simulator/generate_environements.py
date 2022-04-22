@@ -23,12 +23,6 @@ class EnvGenerator():
         
         assert self.window_size % 2 == 1 and self.window_size <= self.num_cells, "Window size not allowed" # it should be odd
         
-        self.free_cells = []
-        for i in range(1, self.num_cells + 1):
-            for j in range(1, self.num_cells + 1):
-                self.free_cells.append((i,j))
-    
-    
     
     def __burn_cell(self, loc : Tuple[int, int]):
         self.free_cells.remove(loc)
@@ -81,7 +75,7 @@ class EnvGenerator():
     
     
     def take_action(self, action : np.array):
-        # action -> 0: down; 1 -> up; 2 -> left; 3 -> right 
+        # action -> 0: up; 1 -> down; 2 -> left; 3 -> right 
         reward = torch.tensor(-1) # the robot moves so he starts already with -1 
         burn_dir, robot_moved = False, False
         
@@ -100,7 +94,7 @@ class EnvGenerator():
                 self.cnt_dirt -= 1
                 burn_dir = True
                 robot_moved = True
-            elif obs_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy]  == 0 and dirt_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 1: # free cell
+            elif obs_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy]  == 0 and dirt_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 0: # free cell
                 robot_moved = True
                 
             
@@ -120,6 +114,10 @@ class EnvGenerator():
     
     def create_env(self):
         print(f"\n\n=============================================Generating environment=============================================")
+        self.free_cells = []
+        for i in range(1, self.num_cells + 1):
+            for j in range(1, self.num_cells + 1):
+                self.free_cells.append((i,j))
         initial_env = np.zeros((self.num_cells + 2, self.num_cells + 2, 3)) # 3 -> robot, obs, dirt
         initial_env[-1, :, self.cells_type.index("obs")] = 1 
         initial_env[0, :, self.cells_type.index("obs")] = 1
