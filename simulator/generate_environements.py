@@ -9,8 +9,9 @@ import matplotlib.pyplot as plt
 
 DEBUG = True
 
-OBSTACLE_REWARD = -10
-DIRTY_REWARD = 1
+OBSTACLE_REWARD = -1
+DIRTY_REWARD = 2
+ENGERGY_REWARD = -1
 
 class EnvGenerator():
     def __init__(self, 
@@ -58,7 +59,7 @@ class EnvGenerator():
     
     
     def is_done(self):
-        return self.cnt_dirt == 0
+        return self.cnt_dirt == 0 
     
     
     def __getaction_offsets(self, action):
@@ -76,7 +77,7 @@ class EnvGenerator():
     
     def take_action(self, action : np.array):
         # action -> 0: up; 1 -> down; 2 -> left; 3 -> right 
-        reward = torch.tensor(-1) # the robot moves so he starts already with -1 
+        reward = torch.tensor(ENGERGY_REWARD) # the robot moves so he starts already with -1 
         burn_dir, robot_moved = False, False
         
         obs_map = deepcopy(self.env[:,:,0]) # obstacles map
@@ -85,10 +86,12 @@ class EnvGenerator():
             
         # compute reward
         if self.robot_loc[0] + ox >= self.num_cells + 2 or self.robot_loc[1] + oy >= self.num_cells + 2: # against a wall
-            reward -= OBSTACLE_REWARD
+            reward += OBSTACLE_REWARD
+            self.cnt_crash += 1
         else:
             if obs_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 1:
                 reward += OBSTACLE_REWARD
+                self.cnt_crash += 1
             elif dirt_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 1:
                 reward += DIRTY_REWARD
                 self.cnt_dirt -= 1
@@ -114,7 +117,7 @@ class EnvGenerator():
     
     def create_env(self):
         print(f"\n\n=============================================Generating environment=============================================")
-        self.free_cells = []
+        self.cnt_crash, self.free_cells = 0, []
         for i in range(1, self.num_cells + 1):
             for j in range(1, self.num_cells + 1):
                 self.free_cells.append((i,j))

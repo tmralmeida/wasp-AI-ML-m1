@@ -67,67 +67,65 @@ memory = ReplayMemory(cfg["steps_per_epoch"],
 pi_optimizer = optim.Adam(pv.pi.parameters(), lr = float(cfg["pi_lr"]))
 v_optimizer = optim.Adam(pv.v_pi.parameters(), lr = float(cfg["v_lr"]))
 
-for env in range(args.num_envs):
-    ep_ret, stats_return, stats_return["mean"], stats_return["max"], stats_return["min"], all_durations = 0, {}, [], [], [], []
-    
-    # Generating environment
-    eg = EnvGenerator(args.num_cells)
-    eg.create_env()
-    obs = eg.get_obs()
-    
-    for epoch in range(cfg["epochs"]):
-        epoch_returns = []
-        for st in range(cfg["steps_per_epoch"]):
-            action, value = pv.step(torch.as_tensor(obs, dtype = torch.float32).to(device))
-            action = F.one_hot(torch.from_numpy(action), num_classes = act_sp.shape[0])
-            reward = eg.take_action(action.numpy())
-            ep_ret += reward.item()
-            memory.push(Experience(obs, action, reward), value)
-            
-            timeout = st == cfg["max_ep_len"]
-            terminal = eg.is_done()
-            epoch_ended = st == cfg["steps_per_epoch"] - 1 
-            
-            if terminal or epoch_ended:
-                if epoch_ended and not(terminal):
-                    epoch_returns.append(ep_ret)
-                    print('Warning: trajectory cut off by episode at %d steps.'%st, flush=True)
-                    
-                # trajectory didn't reach terminal state (not done) --> bootstrap
-                if timeout or epoch_ended:
-                    _, value = pv.step(torch.as_tensor(obs, dtype = torch.float32).to(device))
-                else:
-                    value = 0
-                memory.finish_path(value)
-                
-                if terminal:
-                    epoch_returns.append(ep_ret)
-                    all_durations.append(st)
-                    eg.create_env()
-                    obs = eg.get_obs()
-    
-        # Update VPG
-        data = memory.get()
-        _obs, _act, _ret, _adv = data["obs"].to(device), data["act"].argmax(dim = -1).to(device), data["ret"].to(device), data["adv"].to(device)
-        # Train policy
-        pi_optimizer.zero_grad()
-        pi, logp = pv.pi(_obs.flatten(1), _act)
-        loss_pi = -(logp * _adv).mean()
-        loss_pi.backward()
-        pi_optimizer.step()
-        mean_, max_, min_ = stats(epoch_returns)
-        stats_return["mean"].append(mean_)
-        stats_return["min"].append(min_)
-        stats_return["max"].append(max_)
-        
-        # Train value function
-        for i in range(cfg["v_train_iters"]):
-            v_optimizer.zero_grad()
-            loss_v_pi = ((pv.v_pi(_obs.flatten(1)) - _ret)**2).mean()
-            loss_v_pi.backward()
-            v_optimizer.step()
+ep_ret, stats_return, stats_return["mean"], stats_return["max"], stats_return["min"], all_durations = 0, {}, [], [], [], []
 
-        plot(env + 1, stats_return)
+# Generating environment
+eg = EnvGenerator(args.num_cells)
+eg.create_env()
+
+for epoch in range(cfg["epochs"]):
+    epoch_returns = []
+    for st in range(cfg["steps_per_epoch"]):
+        obs = eg.get_obs()
+        action, value = pv.step(torch.as_tensor(obs, dtype = torch.float32).to(device))
+        action = F.one_hot(torch.from_numpy(action), num_classes = act_sp.shape[0])
+        reward = eg.take_action(action.numpy())
+        ep_ret += reward.item()
+        memory.push(Experience(obs, action, reward), value)
+        
+        timeout = st == cfg["max_ep_len"]
+        terminal = eg.is_done()
+        epoch_ended = st == cfg["steps_per_epoch"] - 1 
+        
+        if terminal or epoch_ended:
+            if epoch_ended and not(terminal):
+                print('Warning: trajectory cut off by episode at %d steps.'%st, flush=True)
+                
+            # trajectory didn't reach terminal state (not done) --> bootstrap
+            if timeout or epoch_ended:
+                _, value = pv.step(torch.as_tensor(obs, dtype = torch.float32).to(device))
+            else:
+                value = 0
+            memory.finish_path(value)
+            
+            if terminal:
+                epoch_returns.append(ep_ret)
+                all_durations.append(st)
+            eg.create_env()
+            ep_ret = 0
+
+    # Update VPG
+    data = memory.get()
+    _obs, _act, _ret, _adv = data["obs"].to(device), data["act"].argmax(dim = -1).to(device), data["ret"].to(device), data["adv"].to(device)
+    # Train policy
+    pi_optimizer.zero_grad()
+    pi, logp = pv.pi(_obs.flatten(1), _act)
+    loss_pi = -(logp * _adv).mean()
+    loss_pi.backward()
+    pi_optimizer.step()
+    mean_, max_, min_ = stats(epoch_returns)
+    stats_return["mean"].append(mean_)
+    stats_return["min"].append(min_)
+    stats_return["max"].append(max_)
+    
+    # Train value function
+    for i in range(cfg["v_train_iters"]):
+        v_optimizer.zero_grad()
+        loss_v_pi = ((pv.v_pi(_obs.flatten(1)) - _ret)**2).mean()
+        loss_v_pi.backward()
+        v_optimizer.step()
+
+    plot(epoch + 1, stats_return)
     
 
 print("\nTraining finished\n")

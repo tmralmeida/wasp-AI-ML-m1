@@ -18,5 +18,5 @@ def plot(ep, stats_return):
     plt.plot(mean_, c = "r")
     plt.fill_between(np.arange(len(mean_)), max_, min_, facecolor = "blue", alpha = 0.3)
     plt.pause(0.001)
-    print("Environment", ep, "\n", "Avg Return", mean_[-1])
+    print("Epoch", ep, "\n", "Avg Return", mean_[-1])
     plt.show()
