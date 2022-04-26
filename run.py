@@ -17,7 +17,7 @@ parser.add_argument(
     "--num_cells",
     "-nc",
     type = int,
-    default = 5,
+    default = 11,
     required = False,
     help = "Grid world's side number of cells"
 )
@@ -53,7 +53,7 @@ print(f"\n========================================Grid world with {args.num_cell
 with open(args.cfg, "r") as f:
     cfg = yaml.safe_load(f)
 
-obs_sp = torch.zeros(3,3,3) # window size * (obs, robot, dirt)
+obs_sp = torch.zeros(cfg["window_size"],cfg["window_size"],3) # window size, window_size, 3
 act_sp = torch.zeros(4) # (down, up, right, left)
 
 # Training agent
@@ -70,7 +70,7 @@ v_optimizer = optim.Adam(pv.v_pi.parameters(), lr = float(cfg["v_lr"]))
 ep_ret, stats_return, stats_return["mean"], stats_return["max"], stats_return["min"], all_durations = 0, {}, [], [], [], []
 
 # Generating environment
-eg = EnvGenerator(args.num_cells)
+eg = EnvGenerator(args.num_cells, cfg["window_size"])
 eg.create_env()
 
 for epoch in range(cfg["epochs"]):
@@ -84,7 +84,7 @@ for epoch in range(cfg["epochs"]):
         memory.push(Experience(obs, action, reward), value)
         
         timeout = st == cfg["max_ep_len"]
-        terminal = eg.is_done()
+        terminal = eg.is_done() or timeout
         epoch_ended = st == cfg["steps_per_epoch"] - 1 
         
         if terminal or epoch_ended:

@@ -7,7 +7,7 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 
 
-DEBUG = True
+DEBUG = False
 
 OBSTACLE_REWARD = -1
 DIRTY_REWARD = 2
@@ -48,13 +48,11 @@ class EnvGenerator():
     
     def get_obs(self):
         x_pt, y_pt = self.robot_loc
-        if self.window_size !=  self.num_cells:
-            offset = int(self.window_size / 2)
-            lu_c, rd_c = ( x_pt - offset, y_pt - offset), (x_pt + offset, y_pt + offset)# left upper corner right down corner
-        
-        
+        offset = int(self.window_size / 2)
+        lu_c, rd_c = (max(0, x_pt - offset), max(0, y_pt - offset)), (min(x_pt + offset, self.env.shape[0]), min(y_pt + offset, self.env.shape[1]))# left upper corner right down corner
         obs = self.env[lu_c[0]:rd_c[0]+1,lu_c[1]:rd_c[1]+1,:]
-        return torch.from_numpy(obs)
+        obs_pad = np.pad(obs, ((0, self.window_size - obs.shape[0]), (0, self.window_size - obs.shape[1]), (0,0)), 'constant', constant_values = 0)
+        return torch.from_numpy(obs_pad)
     
     
     
@@ -158,7 +156,7 @@ class EnvGenerator():
         
         if len(set_covered_cells) > 0:    
             # place dirty
-            n_dirt = random.randint(self.num_obs, len(set_covered_cells))
+            n_dirt = random.randint(1, len(set_covered_cells))
             self.cnt_dirt = n_dirt
             free_cells = list(deepcopy(set_covered_cells))
             dirt_locs = []
