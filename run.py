@@ -17,21 +17,10 @@ parser.add_argument(
     "--num_cells",
     "-nc",
     type = int,
-    default = 11,
+    default = 5,
     required = False,
     help = "Grid world's side number of cells"
 )
-
-
-parser.add_argument(
-    "--num_envs",
-    "-ne",
-    type = int,
-    default = 50,
-    required = False,
-    help = "Number of environments to train the agent"
-)
-
 
 parser.add_argument(
     "--cfg",
@@ -45,7 +34,6 @@ parser.add_argument(
 args = parser.parse_args()
 device = torch.device("cpu")
 
-
 assert args.num_cells <= 11 and args.num_cells >= 5, "Please select a grid size between 5 and 11"
 
 print(f"\n========================================Grid world with {args.num_cells} cells========================================\n")
@@ -53,7 +41,9 @@ print(f"\n========================================Grid world with {args.num_cell
 with open(args.cfg, "r") as f:
     cfg = yaml.safe_load(f)
 
-obs_sp = torch.zeros(cfg["window_size"],cfg["window_size"],3) # window size, window_size, 3
+create_dirs(cfg)
+obs_shape = cfg["window_size"] if cfg["window_size"] != args.num_cells else args.num_cells + 2
+obs_sp = torch.zeros(obs_shape, obs_shape,3) 
 act_sp = torch.zeros(4) # (down, up, right, left)
 
 # Training agent
@@ -125,10 +115,13 @@ for epoch in range(cfg["epochs"]):
         loss_v_pi.backward()
         v_optimizer.step()
 
-    plot(epoch + 1, stats_return)
+    plot(epoch, stats_return, cfg, num_cells = args.num_cells)
     
 
 print("\nTraining finished\n")
+
+print("saving the model...")
+torch.save(pv, os.path.join(cfg["save_dir"], "models", f"pv-nc_{args.num_cells}-w_{cfg['window_size']}.pth"))
 
 # Testing
 # gw = GridWorld(args.num_cells)

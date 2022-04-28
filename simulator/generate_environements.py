@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 
 DEBUG = False
 
-OBSTACLE_REWARD = -1
+OBSTACLE_REWARD = -0.1
 DIRTY_REWARD = 2
-ENGERGY_REWARD = -1
+ENGERGY_REWARD = -0.1
 
 class EnvGenerator():
     def __init__(self, 
@@ -47,11 +47,18 @@ class EnvGenerator():
     
     
     def get_obs(self):
+        if self.window_size == self.num_cells:
+            return torch.from_numpy(self.env)
         x_pt, y_pt = self.robot_loc
         offset = int(self.window_size / 2)
         lu_c, rd_c = (max(0, x_pt - offset), max(0, y_pt - offset)), (min(x_pt + offset, self.env.shape[0]), min(y_pt + offset, self.env.shape[1]))# left upper corner right down corner
         obs = self.env[lu_c[0]:rd_c[0]+1,lu_c[1]:rd_c[1]+1,:]
         obs_pad = np.pad(obs, ((0, self.window_size - obs.shape[0]), (0, self.window_size - obs.shape[1]), (0,0)), 'constant', constant_values = 0)
+        if DEBUG:
+            print("OBSERVATION")
+            print("d", obs_pad[:,:,2])
+            print("obs", obs_pad[:,:,0])
+            print("r",obs_pad[:,:,1])
         return torch.from_numpy(obs_pad)
     
     
@@ -62,6 +69,8 @@ class EnvGenerator():
     
     def __getaction_offsets(self, action):
         action = action.argmax()
+        if DEBUG:
+            print(["up", "down", "left", "right"][action])
         if action == 0:
             offset_x, offset_y = -1, 0
         elif action == 1:
@@ -81,16 +90,29 @@ class EnvGenerator():
         obs_map = deepcopy(self.env[:,:,0]) # obstacles map
         dirt_map = deepcopy(self.env[:,:, 2]) # dirt map
         ox, oy = self.__getaction_offsets(action)
+        if DEBUG:
+            print("====================================")
+            print("====================================")
+            print("====================================")
+            print("====================================")
+            print("Before ACTION=================")
+            print("=============DIRT MAP==============")
+            print(self.env[:,:,2])
+            print()
+            print("============OBS MAP================")
+            print(self.env[:,:,0])
+            print()
+            print("============ROBOT MAP==============")
+            print(self.env[:,:,1])
+            print("====================================")
+            print("====================================")
             
         # compute reward
-        if self.robot_loc[0] + ox >= self.num_cells + 2 or self.robot_loc[1] + oy >= self.num_cells + 2: # against a wall
+        if obs_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 1: # against a wall
             reward += OBSTACLE_REWARD
             self.cnt_crash += 1
         else:
-            if obs_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 1:
-                reward += OBSTACLE_REWARD
-                self.cnt_crash += 1
-            elif dirt_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 1:
+            if dirt_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 1:
                 reward += DIRTY_REWARD
                 self.cnt_dirt -= 1
                 burn_dir = True
@@ -108,6 +130,21 @@ class EnvGenerator():
             self.robot_loc[0] += ox
             self.robot_loc[1] += oy
             self.env[self.robot_loc[0], self.robot_loc[1], 1] = 1 # place robot
+        
+        if DEBUG:
+            print("AFTER ACTION=======================")
+            print("=============DIRT MAP==============")
+            print(self.env[:,:,2])
+            print()
+            print("============OBS MAP================")
+            print(self.env[:,:,0])
+            print()
+            print("============ROBOT MAP==============")
+            print(self.env[:,:,1])
+            print("====================================")
+            print("====================================")
+            print("====================================")
+            print("====================================")
         
         return reward 
     
@@ -142,8 +179,7 @@ class EnvGenerator():
         print("\nObstacles locations:", obs_loc)
         print("\nAfter placing obstacles, free cells list:", self.free_cells)
         new_env_obs_loc, new_graph_obs_loc = self.update_env(new_env_robot_loc, new_graph_robot_loc, obs_loc, "obs")
-        print("\nGraph after placing obstacles:\n", new_graph_obs_loc)
-        
+        print("\nGraph after placing obstacles:\n", new_graph_obs_loc) 
         
         # compute pssible paths from the robot's location
         set_covered_cells = set()
@@ -156,7 +192,7 @@ class EnvGenerator():
         
         if len(set_covered_cells) > 0:    
             # place dirty
-            n_dirt = random.randint(1, len(set_covered_cells))
+            n_dirt = 1 #random.randint(1, len(set_covered_cells))
             self.cnt_dirt = n_dirt
             free_cells = list(deepcopy(set_covered_cells))
             dirt_locs = []
@@ -164,8 +200,7 @@ class EnvGenerator():
                 l = random.choice(free_cells)
                 dirt_locs.append(l)
                 free_cells.remove(l)
-                #self.__burn_cell(l)
-
+                
             print("\nWe are going to place dirt at", dirt_locs)
             self.env, new_graph_dirt_loc = self.update_env(new_env_obs_loc, new_graph_obs_loc, dirt_locs, "dirt")
             print("\nGraph after placing dirt\n", new_graph_dirt_loc)
