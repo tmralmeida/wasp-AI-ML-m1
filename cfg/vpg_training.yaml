@@ -1,4 +1,4 @@
-epochs : 2
+epochs : 2000
 steps_per_epoch : 4000 # Max number of (s,a) per epoch
 gamma : 0.99 # Discount factor
 lambda : 0.97 # Hyperparameter for the baseline
