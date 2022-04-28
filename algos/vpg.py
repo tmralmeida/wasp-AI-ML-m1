@@ -98,7 +98,7 @@ class ReplayMemory():
         self.push_count += 1   
 
 
-    def finish_path(self, last_val =0):
+    def finish_path(self, last_val = 0):
         """Based on: https://github.com/openai/spinningup/blob/038665d62d569055401d91856abb287263096178/spinup/algos/pytorch/vpg/core.py#L29
         """
         path_slice = slice(self.path_start_idx, self.push_count)
@@ -152,28 +152,6 @@ class MLPCategoricalPolicy(nn.Module):
             logp_a = self.log_prob_from_dist(pi, act)
         return pi, logp_a
     
-    
-class MLPGaussianPolicy():
-    """Handles the full operation of a policy of continuous actions
-    
-    Attributes:
-        mu_net (nn.Sequential): NN that maps observation into the mean of each action
-        log_std (float): logarithm of the standard deviation
-        
-    Methods:
-        dist(obs): returns a normal distribution based on the observation
-        log_prob_from_dist(pi, act): returns the logits of an action of a certain policy
-    """
-    def __init__(self, sizes, act_dim, activation = nn.Tanh, last_activation = nn.Identity, device = torch.device("cpu")):
-        self.mu_net = mlp(sizes, activation, last_activation).to(device)
-        log_std = -0.5 *np.ones(act_dim, dtype = np.float32)
-        self.log_std = nn.Parameter(torch.as_tensor(log_std))
-        
-    def dist(self, obs):
-        return Normal(self.mu_net(obs), torch.exp(self.log_std))
-    
-    def log_prob_from_dist(self, pi, act):
-        return pi.log_prob(act).sum(axis=-1)
     
     
 class PolicyValue(nn.Module):
