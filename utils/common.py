@@ -19,4 +19,6 @@ def plot(ep, stats_return):
     plt.fill_between(np.arange(len(mean_)), max_, min_, facecolor = "blue", alpha = 0.3)
     plt.pause(0.001)
     print("Epoch", ep, "\n", "Avg Return", mean_[-1])
-    plt.show()
+    plt.show(block=False)
+    plt.pause(1)
+    plt.close()
