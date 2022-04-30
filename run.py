@@ -57,7 +57,7 @@ memory = ReplayMemory(cfg["steps_per_epoch"],
 pi_optimizer = optim.Adam(pv.pi.parameters(), lr = float(cfg["pi_lr"]))
 v_optimizer = optim.Adam(pv.v_pi.parameters(), lr = float(cfg["v_lr"]))
 
-ep_ret, stats_return, stats_return["mean"], stats_return["max"], stats_return["min"], all_durations = 0, {}, [], [], [], []
+ep_ret, ep_len, stats_return, stats_return["mean"], stats_return["max"], stats_return["min"], all_durations = 0, 0, {}, [], [], [], []
 
 # Generating environment
 eg = EnvGenerator(args.num_cells, cfg["window_size"])
@@ -71,9 +71,10 @@ for epoch in range(cfg["epochs"]):
         action = F.one_hot(torch.from_numpy(action), num_classes = act_sp.shape[0])
         reward = eg.take_action(action.numpy())
         ep_ret += reward.item()
+        ep_len += 1
         memory.push(Experience(obs, action, reward), value)
         
-        timeout = st == cfg["max_ep_len"]
+        timeout = ep_len == cfg["max_ep_len"]
         terminal = eg.is_done() or timeout
         epoch_ended = st == cfg["steps_per_epoch"] - 1 
         
@@ -92,7 +93,7 @@ for epoch in range(cfg["epochs"]):
                 epoch_returns.append(ep_ret)
                 all_durations.append(st)
             eg.create_env()
-            ep_ret = 0
+            ep_ret, ep_len = 0, 0
 
     # Update VPG
     data = memory.get()
