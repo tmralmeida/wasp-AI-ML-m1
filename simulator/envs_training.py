@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 DEBUG = False
-class EnvGenerator():
+class EnvHandler():
     def __init__(self, 
                  num_cells, 
                  obs_reward = -0.1,

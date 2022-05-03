@@ -4,7 +4,7 @@ from tkinter import *
 import torch.optim as optim
 import torch.nn.functional as F
 
-from simulator.envs_training import EnvGenerator
+from simulator.envs_training import EnvHandler
 from algos.vpg import *
 from utils.common import *
 
@@ -58,12 +58,12 @@ v_optimizer = optim.Adam(pv.v_pi.parameters(), lr = float(cfg["v_lr"]))
 
 ep_ret, ep_len, stats_return, stats_return["mean"], stats_return["max"], stats_return["min"], all_durations = 0, 0, {}, [], [], [], []
 
-# Generating environment
-eg = EnvGenerator(args.num_cells, 
-                  cfg["obs_reward"],
-                  cfg["dirt_reward"],
-                  cfg["ene_reward"],
-                  cfg["window_size"])
+# Environment handler
+eg = EnvHandler(args.num_cells, 
+                cfg["obs_reward"],
+                cfg["dirt_reward"],
+                cfg["ene_reward"],
+                cfg["window_size"])
 eg.create_env()
 
 for epoch in range(cfg["epochs"]):
