@@ -21,7 +21,7 @@ conda create --name <env_name> --file requirements.yml
 **Constraints/assumptions**:
 
 * there is only one robot
-* there is a maximum amount of obstacles =  `num_cells`
+* there is a fixed amount of obstacles =  `num_cells`
 * the range of dirty cells range from 1 to the covered cells from the robot location
 
 First, we need to train the agent to become smart. Therefore, we will train the agent in a vast number of different scenarios, where the rewards stand for:
