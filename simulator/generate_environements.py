@@ -8,19 +8,22 @@ import matplotlib.pyplot as plt
 
 
 DEBUG = False
-
-OBSTACLE_REWARD = -0.1
-DIRTY_REWARD = 2
-ENGERGY_REWARD = -0.1
-
 class EnvGenerator():
     def __init__(self, 
                  num_cells, 
+                 obs_reward = -0.1,
+                 dirt_reward = 2,
+                 ene_reward = -0.1,
                  obs_window_size = 3):
         self.num_cells = num_cells # number of cells
+        self.obs_r = obs_reward
+        self.dir_r = dirt_reward
+        self.ene_r =  ene_reward
+        
         self.num_obs = self.num_cells
         self.cells_type = ["obs", "robot","dirt"]
         self.window_size = obs_window_size
+        
         
         assert self.window_size % 2 == 1 and self.window_size <= self.num_cells, "Window size not allowed" # it should be odd
         
@@ -84,7 +87,7 @@ class EnvGenerator():
     
     def take_action(self, action : np.array):
         # action -> 0: up; 1 -> down; 2 -> left; 3 -> right 
-        reward = torch.tensor(ENGERGY_REWARD) # the robot moves so he starts already with -1 
+        reward = torch.tensor(self.ene_r) # the robot moves so he starts already with -1 
         burn_dir, robot_moved = False, False
         
         obs_map = deepcopy(self.env[:,:,0]) # obstacles map
@@ -109,11 +112,11 @@ class EnvGenerator():
             
         # compute reward
         if obs_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 1: # against a wall
-            reward += OBSTACLE_REWARD
+            reward += self.obs_r
             self.cnt_crash += 1
         else:
             if dirt_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 1:
-                reward += DIRTY_REWARD
+                reward += self.dir_r
                 self.cnt_dirt -= 1
                 burn_dir = True
                 robot_moved = True
@@ -147,8 +150,7 @@ class EnvGenerator():
             print("====================================")
         
         return reward 
-    
-    
+
     
     def create_env(self):
         print(f"\n\n=============================================Generating environment=============================================")
@@ -192,7 +194,7 @@ class EnvGenerator():
         
         if len(set_covered_cells) > 0:    
             # place dirty
-            n_dirt = 1 #random.randint(1, len(set_covered_cells))
+            n_dirt = random.randint(1, len(set_covered_cells))
             self.cnt_dirt = n_dirt
             free_cells = list(deepcopy(set_covered_cells))
             dirt_locs = []
@@ -241,13 +243,10 @@ class EnvGenerator():
             self.create_env()
             
             
-            
-        
-        
-
-# code based on: https://www.geeksforgeeks.org/find-whether-path-two-cells-matrix/
 class Graph:
+    # code based on: https://www.geeksforgeeks.org/find-whether-path-two-cells-matrix/
     def __init__(self, n):
+
         self.n = n
         self.graph = defaultdict(list)
         self.free_cells = []

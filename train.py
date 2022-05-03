@@ -4,7 +4,6 @@ from tkinter import *
 import torch.optim as optim
 import torch.nn.functional as F
 
-from simulator.grid_world import GridWorld
 from simulator.generate_environements import EnvGenerator
 from algos.vpg import *
 from utils.common import *
@@ -60,7 +59,11 @@ v_optimizer = optim.Adam(pv.v_pi.parameters(), lr = float(cfg["v_lr"]))
 ep_ret, ep_len, stats_return, stats_return["mean"], stats_return["max"], stats_return["min"], all_durations = 0, 0, {}, [], [], [], []
 
 # Generating environment
-eg = EnvGenerator(args.num_cells, cfg["window_size"])
+eg = EnvGenerator(args.num_cells, 
+                  cfg["obs_reward"],
+                  cfg["dirt_reward"],
+                  cfg["ene_reward"],
+                  cfg["window_size"])
 eg.create_env()
 
 for epoch in range(cfg["epochs"]):
@@ -124,9 +127,3 @@ print("\nTraining finished\n")
 print("saving the model...")
 torch.save(pv, os.path.join(cfg["save_dir"], "models", f"pv-nc_{args.num_cells}-w_{cfg['window_size']}.pth"))
 
-# Testing
-# gw = GridWorld(args.num_cells)
-
-# gw.get_world()
-
-# gw.root.mainloop()
