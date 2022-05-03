@@ -1,4 +1,4 @@
-epochs : 2000
+epochs : 4000
 steps_per_epoch : 4000 # Max number of (s,a) per epoch
 gamma : 0.99 # Discount factor
 lambda : 0.97 # Hyperparameter for the baseline
@@ -9,7 +9,7 @@ v_train_iters : 80 # Number of iterations to run the value function optimizer in
 max_ep_len : 25 # Max len of a trajectory / episode / rollout
 hidden_sizes : [64,32] # Shape of each FC hidden layer
 
-window_size : 5
+window_size : 3
 save_dir : /home/tmr/Documents/PhD/My_PhD/WASP-courses/WASP/6_AI_ML/assignment/wasp-AI-ML-m1/outputs/
 save_plot : True
 show_plot: False
