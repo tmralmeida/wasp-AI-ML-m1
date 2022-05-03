@@ -4,7 +4,7 @@ from tkinter import *
 import torch.optim as optim
 import torch.nn.functional as F
 
-from simulator.generate_environements import EnvGenerator
+from simulator.envs_training import EnvGenerator
 from algos.vpg import *
 from utils.common import *
 
