@@ -93,7 +93,7 @@ for epoch in range(cfg["epochs"]):
             memory.finish_path(value)
             
             if terminal:
-                epoch_returns.append(ep_ret)
+                epoch_returns.append(ep_ret / eg.init_dirt)
                 all_durations.append(st)
             eg.create_env()
             ep_ret, ep_len = 0, 0

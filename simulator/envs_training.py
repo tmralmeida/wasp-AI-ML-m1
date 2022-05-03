@@ -195,6 +195,7 @@ class EnvHandler():
         if len(set_covered_cells) > 0:    
             # place dirty
             n_dirt = random.randint(1, len(set_covered_cells))
+            self.init_dirt = n_dirt
             self.cnt_dirt = n_dirt
             free_cells = list(deepcopy(set_covered_cells))
             dirt_locs = []

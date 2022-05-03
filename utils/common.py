@@ -13,7 +13,7 @@ def plot(ep, stats_return, cfg, num_cells = 5):
     plt.figure(2)
     plt.clf()
     plt.cla()
-    plt.title("Training...")
+    plt.title("Training agent...")
     plt.xlabel(f"# Epochs")
     plt.ylabel("Avg Returns")
     plt.plot(mean_, c = "r")
