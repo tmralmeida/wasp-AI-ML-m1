@@ -14,7 +14,7 @@ conda create --name <env_name> --file requirements.yml
   * [x] obstacles in the environment
   * [x] dirty in the environment 
 * [x] Training smart agent 
-* [ ] Testing smart agent according to users' inputs
+* [x] Testing smart agent according to users' inputs
 
 ## Traininig Instructions
 

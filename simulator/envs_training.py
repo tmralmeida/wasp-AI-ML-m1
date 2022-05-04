@@ -19,14 +19,17 @@ class EnvHandler():
         self.obs_r = obs_reward
         self.dir_r = dirt_reward
         self.ene_r =  ene_reward
-        
-        self.num_obs = self.num_cells
-        self.cells_type = ["obs", "robot","dirt"]
         self.window_size = obs_window_size
         
         
         assert self.window_size % 2 == 1 and self.window_size <= self.num_cells, "Window size not allowed" # it should be odd
         
+    
+    def init_vars(self):
+        self.cnt_crash, self.cleaned_cells, self.free_cells = 0, 0, []
+        self.num_obs = self.num_cells
+        self.cells_type = ["obs", "robot","dirt"]
+    
     
     def __burn_cell(self, loc : Tuple[int, int]):
         self.free_cells.remove(loc)
@@ -70,7 +73,7 @@ class EnvHandler():
         return self.cnt_dirt == 0 
     
     
-    def __getaction_offsets(self, action):
+    def getaction_offsets(self, action):
         action = action.argmax()
         if DEBUG:
             print(["up", "down", "left", "right"][action])
@@ -92,7 +95,7 @@ class EnvHandler():
         
         obs_map = deepcopy(self.env[:,:,0]) # obstacles map
         dirt_map = deepcopy(self.env[:,:, 2]) # dirt map
-        ox, oy = self.__getaction_offsets(action)
+        ox, oy = self.getaction_offsets(action)
         if DEBUG:
             print("====================================")
             print("====================================")
@@ -118,6 +121,7 @@ class EnvHandler():
             if dirt_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 1:
                 reward += self.dir_r
                 self.cnt_dirt -= 1
+                self.cleaned_cells += 1
                 burn_dir = True
                 robot_moved = True
             elif obs_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy]  == 0 and dirt_map[self.robot_loc[0] + ox, self.robot_loc[1] + oy] == 0: # free cell
@@ -153,8 +157,8 @@ class EnvHandler():
 
     
     def create_env(self):
+        self.init_vars()
         print(f"\n\n=============================================Generating environment=============================================")
-        self.cnt_crash, self.free_cells = 0, []
         for i in range(1, self.num_cells + 1):
             for j in range(1, self.num_cells + 1):
                 self.free_cells.append((i,j))

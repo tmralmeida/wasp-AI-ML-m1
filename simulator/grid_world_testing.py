@@ -3,6 +3,10 @@ import numpy as np
 from tkinter import *
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+import time
+
+
 
 ROBOT_VALUE = 0
 OBSTACLE_VALUE = -10
@@ -27,12 +31,13 @@ class GridWorld():
         self.pv  = pv # trained model
         self.event_handler = eh
         self.cells_type = ["obs", "robot","dirt"]
+        self.device = torch.device("cpu")
         
     
     def __init_vars(self):
         self.clicks_robot, self.clicks_obstacles, self.clicks_dirty = 0, 0, 0
         self.model = np.ones((self.nc, self.nc)) * FREE_VALUE 
-        print("\nInitial state:\n", self.model)
+        #print("\nInitial state:\n", self.model)
 
 
     def __update_cell(self, x : int, y : int, type : str):
@@ -63,7 +68,6 @@ class GridWorld():
     def coord_robot(self, event):
         pix_x = event.x         
         pix_y = event.y
-        print(pix_x, pix_y)
         coord_x = int(pix_x / 100)
         coord_y = int(pix_y / 100)
         x0_paint,y0_paint = coord_x * 100 + 3, coord_y * 100 + 3
@@ -73,17 +77,17 @@ class GridWorld():
             self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#000", fill="#000") # painting black
             # updating cell in the state 
             self.__update_cell(coord_x, coord_y, "robot")
-            print("Placing robot at", (coord_y, coord_x))
-            print("New model\n", self.model)
+            #print("Placing robot at", (coord_y, coord_x))
+            #print("New model\n", self.model)
             
         else:
             # if it is occupied by the robot -> remove the robot
             if self.__occ_robot(coord_x, coord_y):
                 self.clicks_robot -= 1
                 self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#fff", fill="#fff") # re-painting white
-                print("Removing robot from", (coord_y, coord_x))
+                #print("Removing robot from", (coord_y, coord_x))
                 self.__update_cell(coord_x, coord_y, "robot")
-                print("New model\n", self.model)
+                #print("New model\n", self.model)
             else:
                 print("Not occupied by the robot!")
            
@@ -101,33 +105,33 @@ class GridWorld():
             self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#f50", fill="#f50") # painting black
             # updating cell in the state 
             self.__update_cell(coord_x, coord_y, "obs")
-            print(f"Placing obstacles at", (coord_y, coord_x))
-            print("New model\n", self.model)
+            #print(f"Placing obstacles at", (coord_y, coord_x))
+            #print("New model\n", self.model)
         
         else:
             if self.__occ_obstacle(coord_x, coord_y): # occupied by an obstacle
                 self.clicks_obstacles -= 1
                 self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#fff", fill="#fff") # re-painting white
-                print("Removing obstacle from", (coord_y, coord_x))
+                #print("Removing obstacle from", (coord_y, coord_x))
                 self.__update_cell(coord_x, coord_y, "obs")
-                print("New model\n", self.model)
+                #print("New model\n", self.model)
             
             elif self.__occ_dirty(coord_x, coord_y): # occupied by dirty
                 self.clicks_dirty -= 1
                 self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#fff", fill="#fff") # re-painting white
-                print("Removing dirty from", (coord_y, coord_x))
+                #print("Removing dirty from", (coord_y, coord_x))
                 self.__update_cell(coord_x, coord_y, "dirty")
-                print("New model\n", self.model)
+                #print("New model\n", self.model)
             
             elif self.__occ_robot(coord_x, coord_y): # occupied by the robot
                 print("Not occupied by obstacles or dirty. To remove the robot please use left button of your mouse!")
             
             elif  self.__free_cell(coord_x, coord_y): # let's start placing dirty
                 self.clicks_dirty += 1
-                self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#00ff7f", fill="#00ff7f") # re-painting white
+                self.canvas.create_rectangle(x0_paint,y0_paint,x1_paint,y1_paint, outline="#00ff7f", fill="#00ff7f") 
                 self.__update_cell(coord_x, coord_y, "dirty")
-                print(f"Placing dirty at", (coord_y, coord_x))
-                print("New model\n", self.model)
+                #print(f"Placing dirty at", (coord_y, coord_x))
+                #print("New model\n", self.model)
             
             else:
                 raise Exception("Designer needs to double check button right")
@@ -144,7 +148,7 @@ class GridWorld():
             
             print(f"Testing with {self.clicks_dirty} dirty cells and {self.clicks_obstacles} obstacles...")
             
-            model_dum = np.zeros((self.nc + 2, self.nc + 2))
+            model_dum = np.ones((self.nc + 2, self.nc + 2)) * (OBSTACLE_VALUE)
             model_dum[1:-1, 1:-1] = deepcopy(self.model)
             
             
@@ -158,8 +162,6 @@ class GridWorld():
             initial_env[:, 0, self.cells_type.index("obs")] = 1 
             
             # 2)robot
-            self.model == 0
-            print(model_dum)
             initial_env[model_dum == ROBOT_VALUE, self.cells_type.index("robot")] = 1
             
             # 3)obstacles
@@ -168,14 +170,45 @@ class GridWorld():
             # 4)dirt
             initial_env[model_dum == DIRTY_VALUE, self.cells_type.index("dirt")] = 1
             
-            print("obstacles", initial_env[:,:,0])
-            print("robot", initial_env[:,:,1])
-            print("dirt", initial_env[:,:,2])
-            
+            robot_loc = np.argwhere(initial_env[:, :, self.cells_type.index("robot")] == 1)[-1]
             
             
             # while loop -> end of the episode 
-            self.cnt_crash, self.cnt_dirt = 0, 0
+            ep_ret, ep_len, act_sp = 0, 0, torch.zeros(4)
+            self.event_handler.env = initial_env
+            self.event_handler.init_vars()
+            self.event_handler.robot_loc, self.event_handler.cnt_dirt = robot_loc, self.clicks_dirty
+            while not self.event_handler.is_done():
+                prev_robot_loc = deepcopy(self.event_handler.robot_loc)
+                obs = self.event_handler.get_obs()
+                action, _ = self.pv.step(torch.as_tensor(obs, dtype = torch.float32).to(self.device))
+                action = F.one_hot(torch.from_numpy(action), num_classes = act_sp.shape[0])
+                reward = self.event_handler.take_action(action.numpy())
+                ep_ret += reward.item()
+                ep_len += 1
+                
+                x0_paint_prev,y0_paint_prev = (prev_robot_loc[0] - 1) * 100 + 3, (prev_robot_loc[1] - 1) * 100 + 3
+                x1_paint_prev,y1_paint_prev = x0_paint_prev + 94, y0_paint_prev + 94
+                x0_paint,y0_paint = (self.event_handler.robot_loc[0] - 1) * 100 + 3, (self.event_handler.robot_loc[1] - 1) * 100 + 3
+                x1_paint,y1_paint = x0_paint + 94, y0_paint + 94
+                
+                if (self.event_handler.robot_loc == prev_robot_loc).all(): # hit in an obstacle do nothing
+                    print("\nThe agent hit an obstacle :(")
+                else: 
+                    self.canvas.create_rectangle(y0_paint_prev,x0_paint_prev,y1_paint_prev, x1_paint_prev, outline="#fff", fill="#fff") # re-painting white
+                    self.canvas.create_rectangle(y0_paint, x0_paint,y1_paint, x1_paint, outline="#000", fill="#000") # painting black
+                    self.root.update()
+                
+                time.sleep(0.5)
+                
+            
+            
+            
+            print("\n==============================STATS==================================\n")
+            print(f"\tEpisode return: {ep_ret} in {ep_len} steps!")
+            print(f"\t# crashes: {self.event_handler.cnt_crash} -------------- # cleaned dirty cells {self.event_handler.cleaned_cells}")
+            
+            self.root.destroy()
             
         else:
             print("Please, finish the environment designing!")
