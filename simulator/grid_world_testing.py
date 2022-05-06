@@ -178,7 +178,7 @@ class GridWorld():
             self.event_handler.env = initial_env
             self.event_handler.init_vars()
             self.event_handler.robot_loc, self.event_handler.cnt_dirt = robot_loc, self.clicks_dirty
-            while not self.event_handler.is_done():
+            while (not self.event_handler.is_done()) and (ep_len < self.nc * self.nc * 2):
                 prev_robot_loc = deepcopy(self.event_handler.robot_loc)
                 obs = self.event_handler.get_obs()
                 action, _ = self.pv.step(torch.as_tensor(obs, dtype = torch.float32).to(self.device))
@@ -198,9 +198,11 @@ class GridWorld():
                     self.canvas.create_rectangle(y0_paint_prev,x0_paint_prev,y1_paint_prev, x1_paint_prev, outline="#fff", fill="#fff") # re-painting white
                     self.canvas.create_rectangle(y0_paint, x0_paint,y1_paint, x1_paint, outline="#000", fill="#000") # painting black
                     self.root.update()
+
                 
                 time.sleep(0.5)
-                
+            if ep_len >= self.nc * self.nc:
+                print("\nSTOPPED BY TIME OUT!!! It's a rather complex scenario...\n")
             
             
             

@@ -13,7 +13,7 @@ pi_lr : 3e-4 # Learning rate for the training of the policy net
 v_lr : 1e-3 # Learning rate for the training of the value function net
 hidden_sizes : [64,32] # Shape of each FC hidden layer
 
-window_size : 3
+window_size : 5
 save_dir : /home/tmr/Documents/PhD/My_PhD/WASP-courses/WASP/6_AI_ML/assignment/wasp-AI-ML-m1/outputs/
 save_plot : True
 show_plot: False

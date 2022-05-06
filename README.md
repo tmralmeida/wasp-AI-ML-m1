@@ -4,7 +4,7 @@ Training an agent with [REINFORCE](https://proceedings.neurips.cc/paper/1999/fil
 ## Installation
 
 ```
-conda create --name <env_name> --file requirements.yml
+conda env create --name <env_name> --file requirements.yml
 ```
 
 ## Current status
@@ -26,12 +26,11 @@ conda create --name <env_name> --file requirements.yml
 
 First, we need to train the agent to become smart. Therefore, we will train the agent in a vast number of different scenarios, where the rewards stand for:
 
-* OBSTACLE_REWARD = -0.1
-* DIRTY_REWARD = 2
-* ENGERGY_REWARD = -0.1
+* hitting an obstacle = -0.1
+* cleaning dirty cells = +2
+* moving one cell = -0.1
 
-This means that every time the agent moves gets a penalty of 0.1. Whenever it hits an obstacle, it gets a penalty of the same amount. Finally, 
-if per each cleaned cell of the environment, it gets a reward of 2.  
+This means that every time the agent moves gets a penalty of 0.1. Whenever it hits an obstacle, it gets a penalty of the same amount. Finally, per each cleaned cell of the environment, it gets a reward of +2.  
 
 To do so, there is a [cfg file](https://github.com/tmralmeida/wasp-AI-ML-m1/blob/main/cfg/vpg_training.yaml) that the user can modify 
 to set different hyperparameters s.t:
@@ -65,7 +64,7 @@ After training, check plots and trained models in outputs directory.
 
 ## Testing Instructions
 
-For testing, run [run_agent.py](https://github.com/tmralmeida/wasp-AI-ML-m1/blob/main/run_agent.py) script as follows:
+For testing, first, change the output model path (`save_dir`) in the [cfg file](https://github.com/tmralmeida/wasp-AI-ML-m1/blob/main/cfg/vpg_training.yaml). Then, run [run_agent.py](https://github.com/tmralmeida/wasp-AI-ML-m1/blob/main/run_agent.py) script as follows:
 
 
 ```
