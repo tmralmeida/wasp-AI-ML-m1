@@ -119,11 +119,11 @@ for epoch in range(cfg["epochs"]):
         loss_v_pi.backward()
         v_optimizer.step()
 
-    plot(epoch, stats_return, cfg, num_cells = args.num_cells)
+    plot(epoch, stats_return, cfg)
     
 
 print("\nTraining finished\n")
 
 print("saving the model...")
-torch.save(pv, os.path.join(cfg["save_dir"], "models", f"pv-nc_{args.num_cells}-w_{cfg['window_size']}.pth"))
+torch.save(pv, os.path.join(cfg["save_dir"], "models", f"pv.pth"))
 

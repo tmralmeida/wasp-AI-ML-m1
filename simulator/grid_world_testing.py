@@ -201,7 +201,7 @@ class GridWorld():
 
                 
                 time.sleep(0.5)
-            if ep_len >= self.nc * self.nc:
+            if ep_len >= self.nc * self.nc * 2:
                 print("\nSTOPPED BY TIME OUT!!! It's a rather complex scenario...\n")
             
             

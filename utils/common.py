@@ -6,7 +6,7 @@ def stats(arr):
     return np.mean(arr), np.max(arr), np.min(arr)
 
 
-def plot(ep, stats_return, cfg, num_cells = 5): 
+def plot(ep, stats_return, cfg): 
     mean_ = stats_return["mean"]
     max_ = stats_return["max"]
     min_ = stats_return["min"]
@@ -22,7 +22,7 @@ def plot(ep, stats_return, cfg, num_cells = 5):
     print("Epoch", ep, "\n", "Avg Return", mean_[-1])
     if (ep+1 == cfg["epochs"]) and cfg["save_plot"]:
         print("saving plots...")
-        plt.savefig(os.path.join(cfg["save_dir"], "plots", f"plot_{num_cells}_-w_{cfg['window_size']}.png"))
+        plt.savefig(os.path.join(cfg["save_dir"], "plots", f"plot.png"))
     plt.show(block=False)
     plt.pause(1)
     plt.close()

@@ -51,7 +51,7 @@ eh = EnvHandler(args.num_cells,
                 cfg["ene_reward"],
                 cfg["window_size"])
 
-pv = torch.load(os.path.join(cfg["save_dir"], "models", f"pv-nc_{args.num_cells}-w_{cfg['window_size']}.pth"))
+pv = torch.load(os.path.join(cfg["save_dir"], "models", f"pv.pth"))
 print("Loaded model!")
 
 # Testing
