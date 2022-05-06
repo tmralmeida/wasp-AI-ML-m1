@@ -80,5 +80,5 @@ After launching the simulator, the user should use the buttons of his mouse:
 The user can keep track of the changes of the environment by looking at the logs in the terminal. 
 
 
-<video src='docs/7_7_simple.mp4' width=180/>
+<video src="docs/7_7_simple.mp4" width="700" height="738"/>
 
