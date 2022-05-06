@@ -80,5 +80,7 @@ After launching the simulator, the user should use the buttons of his mouse:
 The user can keep track of the changes of the environment by looking at the logs in the terminal. 
 
 
-<video src="docs/7_7_simple.mp4" width="700" height="738"/>
+https://user-images.githubusercontent.com/47647156/167178923-35b40eab-e204-4463-b4eb-7c656def5211.mp4
+
+
 
