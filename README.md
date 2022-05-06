@@ -71,12 +71,14 @@ For testing, first, change the output model path (`save_dir`) in the [cfg file](
 python run_agent.py --num_cells NUM_CELLS --cfg PATH_TO_CFG
 ```
 After launching the simulator, the user should use the buttons of his mouse:
-* Firstly, the user should use button left to place/remove the robot in/from the environment
-* Secondly, the user should use button right to place/remove obstacles and dirty in/from the environment
+* The user should use the button left  of his mouse to place/remove the robot in/from the environment (black cells)
+* The user should use the button right of his mouse to place/remove obstacles (red cells) and dirty in/from the environment (green cells)
 * Nevertheless, the user can remove any object by simply clicking again on the respective occupied cell with the correspondent button
+* After designing the environment, click `p` to run the training of the smart agent.
 
 
-The user can keep track on the changes on the environment by looking at the logs in the terminal. For instance, an 11-Grid world environment and the respective `model` should look like this: 
+The user can keep track of the changes of the environment by looking at the logs in the terminal. 
 
 
-After designing the environment, click `p` to run the training of the smart agent.
+<video src='docs/7_7_simple.mp4' width=180/>
+
