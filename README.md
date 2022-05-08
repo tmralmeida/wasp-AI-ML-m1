@@ -83,4 +83,6 @@ The user can keep track of the changes of the environment by looking at the logs
 https://user-images.githubusercontent.com/47647156/167178923-35b40eab-e204-4463-b4eb-7c656def5211.mp4
 
 
-
+Black cell - agent
+Red cells - obstacles
+Green cell - dirt 
