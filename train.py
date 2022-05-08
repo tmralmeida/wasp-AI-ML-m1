@@ -125,5 +125,5 @@ for epoch in range(cfg["epochs"]):
 print("\nTraining finished\n")
 
 print("saving the model...")
-torch.save(pv, os.path.join(cfg["save_dir"], "models", f"pv.pth"))
+torch.save(pv, os.path.join(cfg["save_dir"], "models", f"pv-w_{cfg['window_size']}.pth"))
 

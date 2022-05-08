@@ -22,7 +22,7 @@ def plot(ep, stats_return, cfg):
     print("Epoch", ep, "\n", "Avg Return", mean_[-1])
     if (ep+1 == cfg["epochs"]) and cfg["save_plot"]:
         print("saving plots...")
-        plt.savefig(os.path.join(cfg["save_dir"], "plots", f"plot.png"))
+        plt.savefig(os.path.join(cfg["save_dir"], "plots", f"plot_res-w_{cfg['window_size']}.png"))
     plt.show(block=False)
     plt.pause(1)
     plt.close()
